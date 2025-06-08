@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      1.1.0
+// @version      1.1.1
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -306,7 +306,7 @@ function MakeLiveSidebarButton() {
 function AddBRpBadge() {
     const badge = document.createElement('div');
     badge.id = 'bits-c14';
-    badge.textContent = 'BetterRugplay v1.0';
+    badge.textContent = 'BetterRugplay '+GM_info.script.version;
     badge.style.cssText = `
         position: fixed;
         top: 20px;
@@ -455,4 +455,11 @@ if (window.location.pathname.match(/^\/user\/(.+)$/)) {
             InsertMaliciousBadge();
         }
     });
+} else if (window.location.pathname=="/portfolio") {
+    let NewHTMLContent1 = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-wallet h-4 w-4"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg>Net Worth`;
+    WaitForElement("/html/body/div[1]/div[1]/main/div/div/div/div/div/div/div[2]/div[1]/div[1]/div").then(element => {element.innerHTML = NewHTMLContent1});
+    let NewHTMLContent2 = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-dollar-sign h-4 w-4"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Liquid`;
+    WaitForElement("/html/body/div[1]/div[1]/main/div/div/div/div/div/div/div[2]/div[2]/div[1]/div").then(element => {element.innerHTML = NewHTMLContent2});
+    let NewHTMLContent3 = `<!----><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-trending-up h-4 w-4"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>Illiquid`;
+    WaitForElement("/html/body/div[1]/div[1]/main/div/div/div/div/div/div/div[2]/div[3]/div[1]/div").then(element => {element.innerHTML = NewHTMLContent3});
 }
