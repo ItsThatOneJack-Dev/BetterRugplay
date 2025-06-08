@@ -9,6 +9,8 @@
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=rugplay.com
 // @grant        GM_log
 // @supportURL   https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues
+// @updateURL    https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
+// @downloadURL  https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
 // ==/UserScript==
 
 let Log = GM_log;
