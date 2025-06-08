@@ -18,7 +18,7 @@ That is:
 - If you publicise a modifed version of this program, or any of its contents, you MUST include the original copyright notice.
 - If you publicise a modifed version of this program, or any of its contents, you MUST include a copy of the GNU GPL 3.0+.
 
-<sub>For the purpose of this README file, `GNU GPL 3.0+` is to refer to version 3.0 of the GNU General Public License, or any later version.</sub>
+<sub>For the purpose of this README file, `GNU GPL 3.0+` is to refer to version 3.0 of the GNU General Public License, or any later version. This README file is not to be interpreted as legal information, if the information presented here conflicts with the license text, the license text should take priority. Refer to the license for all legal information.</sub>
 
 ## Licensing
 Copyright (C) 2025 ItsThatOneJack
