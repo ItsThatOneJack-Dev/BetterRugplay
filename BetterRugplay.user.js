@@ -288,19 +288,35 @@ function RemoveSidebarItem(XPath) {
 
 function MakeTransactionsSidebarButton() {
     const HTMLContent = `<li data-slot="sidebar-menu-item" data-sidebar="menu-item" class="group/menu-item relative"><a href="/transactions" class="peer/menu-button outline-hidden ring-sidebar-ring active:bg-sidebar-accent active:text-sidebar-accent-foreground group-has-data-[sidebar=menu-action]/menu-item:pr-8 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left transition-[width,height,padding] focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium [&amp;>span:last-child]:truncate [&amp;>svg]:size-4 [&amp;>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground h-8 text-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-receipt h-5 w-5"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg><span>Transactions</span></a></li>`;
-    const Target = '/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul';
-    return DOMInjectorObject.injectHTML(HTMLContent, Target, {
-        preventDuplicates: false,
-        duplicateIdentifier: ""
-    });
+    const PCTarget = '/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul';
+    const MobileTarget = '/html/body/div[4]/div[2]/div[2]/div[1]/div/ul';
+    try {
+        return DOMInjectorObject.injectHTML(HTMLContent, PCTarget, {
+            preventDuplicates: false,
+            duplicateIdentifier: ""
+        });
+    } catch {
+        return DOMInjectorObject.injectHTML(HTMLContent, MobileTarget, {
+            preventDuplicates: false,
+            duplicateIdentifier: ""
+        });
+    }
 }
 function MakeLiveSidebarButton() {
     const HTMLContent = `<li data-slot="sidebar-menu-item" data-sidebar="menu-item" class="group/menu-item relative"><a href="/live" class="peer/menu-button outline-hidden ring-sidebar-ring active:bg-sidebar-accent active:text-sidebar-accent-foreground group-has-data-[sidebar=menu-action]/menu-item:pr-8 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left transition-[width,height,padding] focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium [&amp;>span:last-child]:truncate [&amp;>svg]:size-4 [&amp;>svg]:shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground h-8 text-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity-icon lucide-activity"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg><span>Live</span></a></li>`;
-    const Target = '/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul';
-    return DOMInjectorObject.injectHTML(HTMLContent, Target, {
-        preventDuplicates: false,
-        duplicateIdentifier: ""
-    });
+    const PCTarget = '/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul';
+    const MobileTarget = '/html/body/div[4]/div[2]/div[2]/div[1]/div/ul';
+    try {
+        return DOMInjectorObject.injectHTML(HTMLContent, PCTarget, {
+            preventDuplicates: false,
+            duplicateIdentifier: ""
+        });
+    } catch {
+        return DOMInjectorObject.injectHTML(HTMLContent, MobileTarget, {
+            preventDuplicates: false,
+            duplicateIdentifier: ""
+        });
+    }
 }
 
 function AddBRpBadge() {
