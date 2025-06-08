@@ -11,6 +11,7 @@
 // @supportURL   https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues
 // @updateURL    https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
 // @downloadURL  https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
+// @require      https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/TooltipSupport.user.js
 // ==/UserScript==
 
 let Log = GM_log;
