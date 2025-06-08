@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      1.1.2
+// @version      1.2.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -272,7 +272,7 @@ function WaitForElementCSS(selector, timeout = 10000) {
 
 const Sleep = ms => new Promise(res => setTimeout(res, ms));
 
-function RemoveSidebarItem(XPath) {
+function RemoveElement(XPath) {
     const observer = new MutationObserver(() => {
         const element = GetByXPath(XPath);
         if (element) {
@@ -345,7 +345,10 @@ AddBRpBadge();
 // Modify sidebar buttons.
 MakeTransactionsSidebarButton();
 MakeLiveSidebarButton();
-RemoveSidebarItem(`/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul/li[9]`);
+
+// Remove the lightmode toggle on both PC and mobile.
+RemoveElement(`/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul/li[9]`);
+RemoveElement(`/html/body/div[4]/div[2]/div[2]/div[1]/div/ul/li[9]`);
 
 // Modify sidebar text.
 WaitForElement("/html/body/div/div[1]/div/div[2]/div/div[2]/div[4]/div[1]").then(element => {
