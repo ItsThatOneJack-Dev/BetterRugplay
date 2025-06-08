@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Rugplay Custom Tooltip Support
 // @namespace    https://itoj.dev
-// @version      v1.0
+// @version      1.1.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
