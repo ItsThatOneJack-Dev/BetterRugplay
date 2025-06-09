@@ -23,9 +23,11 @@ let Log = GM_log;
 
     const observer = new MutationObserver(() => {
         if (location.href !== lastUrl) {
-            lastUrl = location.href;
-            console.log('🔁 Href changed, reloading...');
-            location.reload();
+            if (!(location.pathname === "/")) {
+                lastUrl = location.href;
+                console.log('🔁 Href changed, reloading...');
+                location.reload();
+            }
         }
     });
 
