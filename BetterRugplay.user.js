@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      1.2.0
+// @version      1.3.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
