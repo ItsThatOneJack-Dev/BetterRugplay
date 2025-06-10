@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      1.5.1
+// @version      2.0.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -305,119 +305,131 @@ WaitForElement("/html/body/div/div[1]/div/div[2]/div/div[2]/div[4]/div[2]/div/di
 
 
 // Tag handling.
-function IsBetterRugplayDeveloper(Path) {
+// Tag handling.
+function GetBRPTags(Path) {
     const pathMatch = Path.match(/^\/user\/(.+)$/);
-    if (!pathMatch) return Promise.resolve(false);
+    if (!pathMatch) return Promise.resolve([]);
     const currentId = pathMatch[1];
-    return fetch('https://raw.githubusercontent.com/ItsThatOneJack-Dev/BetterRugplay-tags/main/devs.json')
+    return fetch('https://raw.githubusercontent.com/ItsThatOneJack-Dev/BetterRugplay-tags/main/tags.json')
         .then(response => response.json())
-        .then(developers =>
-            Object.entries(developers).some(([username, userId]) =>
-                currentId === username || currentId === String(userId)
-            )
-        )
-        .catch(() => false);
-}
-function IsBetterRugplayMalicious(Path) {
-    const pathMatch = Path.match(/^\/user\/(.+)$/);
-    if (!pathMatch) return Promise.resolve(false);
-    const currentId = pathMatch[1];
-    return fetch('https://raw.githubusercontent.com/ItsThatOneJack-Dev/BetterRugplay-tags/main/maliciousaccounts.json')
-        .then(response => response.json())
-        .then(maliciousaccounts =>
-            Object.entries(maliciousaccounts).some(([username, userId]) =>
-                currentId === username || currentId === String(userId)
-            )
-        )
-        .catch(() => false);
+        .then(tags => {
+            const matchingTags = [];
+            for (const [message, userList] of Object.entries(tags)) {
+                const foundUser = userList.find(([username, userId]) =>
+                    currentId === username || currentId === String(userId)
+                );
+                if (foundUser) {
+                    matchingTags.push(message);
+                }
+            }
+            return matchingTags;
+        })
+        .catch(() => []);
 }
 
-function InsertDeveloperBadge() {
-    const buttonHTML = `
-        <button data-slot="tooltip-trigger" id="bits-c15" data-state="closed" data-delay-duration="0" data-tooltip-trigger="" tabindex="0" type="button" data-tooltip="BetterRugplay Developer" data-tooltip-custom="" data-side="top">
-            <div class="cursor-pointer rounded-full p-1 opacity-80 hover:opacity-100 ">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cog-icon lucide-cog">
-                    <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"></path>
-                    <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>
-                    <path d="M12 2v2"></path>
-                    <path d="M12 22v-2"></path>
-                    <path d="m17 20.66-1-1.73"></path>
-                    <path d="M11 10.27 7 3.34"></path>
-                    <path d="m20.66 17-1.73-1"></path>
-                    <path d="m3.34 7 1.73 1"></path>
-                    <path d="M14 12h8"></path>
-                    <path d="M2 12h2"></path>
-                    <path d="m20.66 7-1.73 1"></path>
-                    <path d="m3.34 17 1.73-1"></path>
-                    <path d="m17 3.34-1 1.73"></path>
-                    <path d="m11 13.73-4 6.93"></path>
-                </svg>
-            </div>
-        </button>
-    `;
-    function _insertbadge(targ) {
-        if (!targ) return;
-        if (!document.getElementById("bits-c15")) {
-            const temp = document.createElement('div');
-            temp.innerHTML = buttonHTML.trim();
-            const button = temp.firstChild;
-            targ.appendChild(button);
-            console.log('✅ Badge inserted');
-        }
-    }
-    function _insert() {
-        const parent = GetByXPath("/html/body/div[1]/div[1]/main/div/div/div/div/div/div[1]/div/div/div[2]/div[1]/div/div");
-        if (parent) _insertbadge(parent);
-    }
-    setInterval(_insert,500);
+function TagProfile(Tags) {
+    WaitForElement("/html/body/div/div[1]/main/div/div/div/div/div/div[1]/div/div/div[2]/div[2]/span").then(element => {
+        let TagsString = Tags.join(" • ");
+        element.innerText = element.innerText + ((TagsString != "") ? " • " + TagsString : "");
+    });
 }
-function InsertMaliciousBadge() {
-    const buttonHTML = `
-        <button data-slot="tooltip-trigger" id="bits-c15" data-state="closed" data-delay-duration="0" data-tooltip-trigger="" tabindex="0" type="button" data-tooltip="Malicious User" data-tooltip-custom="" data-side="top">
-            <div class="cursor-pointer rounded-full p-1 opacity-80 hover:opacity-100 ">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff0000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
-                    <line x1="4" x2="4" y1="22" y2="15"/>
-                </svg>
-            </div>
-        </button>
-    `;
-    function _insertbadge(targ) {
-        if (!targ) return;
-        if (!document.getElementById("bits-c15")) {
-            const temp = document.createElement('div');
-            temp.innerHTML = buttonHTML.trim();
-            const button = temp.firstChild;
-            targ.appendChild(button);
-            console.log('✅ Badge inserted');
+
+function setupCommentWatcher() {
+    Log("Setting up comment watcher...");
+
+    // First, try to tag any existing comments
+    const existingContainer = document.querySelector('div.space-y-4');
+    if (existingContainer) {
+        TagComments(existingContainer);
+    }
+
+    // Then watch for new comments being added
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                // Check if the added node is a comment div
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    // Check if it's a comment container
+                    if (node.classList && node.classList.contains('space-y-4')) {
+                        Log("Comment container added, tagging all comments");
+                        TagComments(node);
+                    }
+                    // Check if it's an individual comment
+                    else if (node.classList && node.classList.contains('border-border')) {
+                        Log("Individual comment added, tagging it");
+                        TagSingleComment(node);
+                    }
+                    // Check if it contains comments (in case a parent div was added)
+                    else if (node.querySelector) {
+                        const commentDivs = node.querySelectorAll('div.border-border');
+                        if (commentDivs.length > 0) {
+                            Log(`Found ${commentDivs.length} new comments in added node`);
+                            commentDivs.forEach(comment => TagSingleComment(comment));
+                        }
+                    }
+                }
+            });
+        });
+    });
+
+    // Start observing the entire document for changes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+
+    Log("Comment watcher setup complete");
+    return observer;
+}
+
+function TagSingleComment(comment) {
+    try {
+        const usernameBadge = comment.querySelector('span[data-slot="badge"] span.truncate');
+        const username = usernameBadge?.textContent.trim();
+        const topbar = comment.querySelector('div.flex.items-center.gap-2');
+        Log(`Tagging single comment - USR: ${username}, BAR: ${topbar ? "found" : "null"}`);
+        if (username && topbar && !topbar.querySelector('.brp-tags')) {
+            const brpTags = document.createElement('span');
+            brpTags.className = 'brp-tags text-xs text-muted-foreground ml-2';
+            brpTags.textContent = 'Loading tags...';
+            topbar.appendChild(brpTags);
+            const usernameWithoutAt = username.replace('@', '');
+            GetBRPTags(`/user/${usernameWithoutAt}`).then(tags => {
+                brpTags.textContent = tags.join(" • ") || "";
+            });
         }
+    } catch (e) {
+        console.error('Error processing single comment:', e);
     }
-    function _insert() {
-        const parent = GetByXPath("/html/body/div[1]/div[1]/main/div/div/div/div/div/div[1]/div/div/div[2]/div[1]/div/div");
-        if (parent) _insertbadge(parent);
-    }
-    setInterval(_insert,500);
+}
+function TagComments(rootElement) {
+    if (!rootElement?.children) return console.error('Invalid root element');
+    Log(`Tagging ${rootElement.children.length} existing comments`);
+    const commentDivs = Array.from(rootElement.children).filter(child =>
+        child.querySelector && child.querySelector('span[data-slot="badge"]')
+    );
+    Log(`Found ${commentDivs.length} comment divs`);
+    commentDivs.forEach(comment => TagSingleComment(comment));
 }
 
 if (window.location.pathname.match(/^\/user\/(.+)$/)) {
-    Log("Checking BetterRugplay tags of `"+window.location.pathname+"`...");
-    IsBetterRugplayDeveloper(window.location.pathname).then(isDeveloper => {
-        Log("Is developer: "+isDeveloper.toString());
-        if (isDeveloper) {
-            InsertDeveloperBadge();
-        }
+    GetBRPTags(window.location.pathname).then(tags => {
+        TagProfile(tags);
     });
-    IsBetterRugplayMalicious(window.location.pathname).then(isMalicious => {
-        Log("Is malicious: "+isMalicious.toString());
-        if (isMalicious) {
-            InsertMaliciousBadge();
-        }
-    });
-} else if (window.location.pathname=="/portfolio") {
+} else if (window.location.pathname == "/portfolio") {
     let NewHTMLContent1 = `<!----><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-wallet h-4 w-4"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"></path><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path></svg>Net Worth`;
     WaitForElement("/html/body/div[1]/div[1]/main/div/div/div/div/div/div/div[2]/div[1]/div[1]/div").then(element => {element.innerHTML = NewHTMLContent1});
     let NewHTMLContent2 = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-dollar-sign h-4 w-4"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Liquid`;
     WaitForElement("/html/body/div[1]/div[1]/main/div/div/div/div/div/div/div[2]/div[2]/div[1]/div").then(element => {element.innerHTML = NewHTMLContent2});
     let NewHTMLContent3 = `<!----><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-icon lucide lucide-trending-up h-4 w-4"><path d="M16 7h6v6"></path><path d="m22 7-8.5 8.5-5-5L2 17"></path></svg>Illiquid`;
     WaitForElement("/html/body/div[1]/div[1]/main/div/div/div/div/div/div/div[2]/div[3]/div[1]/div").then(element => {element.innerHTML = NewHTMLContent3});
+} else if (window.location.pathname.includes('/coin/')) {
+    Log("Setting up comment tagging for coin page");
+    const commentObserver = setupCommentWatcher();
+    window.addEventListener('beforeunload', () => {
+        if (commentObserver) {
+            commentObserver.disconnect();
+            Log("Comment observer disconnected");
+        }
+    });
 }
