@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      1.3.0
+// @version      1.5.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -59,6 +59,32 @@ let Log = GM_log;
     });
 })();
 
+function GetByXPath(path) {
+    return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+}
+function WaitForElement(XPath) {
+    return new Promise((resolve) => {
+        // Check if element already exists
+        const element = GetByXPath(XPath);
+        if (element) {
+            resolve(element);
+            return;
+        }
+
+        const observer = new MutationObserver(() => {
+            const element = GetByXPath(XPath);
+            if (element) {
+                observer.disconnect();
+                resolve(element);
+            }
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    });
+}
+
 class DOMInjector {
     constructor() {
         this.isReady = false;
@@ -88,48 +114,42 @@ class DOMInjector {
             this.readyCallbacks.push(callback);
         }
     }
-    findElementByXPath(xpath, maxAttempts = 50, interval = 100) {
-        return new Promise((resolve, reject) => {
-            let attempts = 0;
-            const checkElement = () => {
-                const element = document.evaluate(
-                    xpath,
-                    document,
-                    null,
-                    XPathResult.FIRST_ORDERED_NODE_TYPE,
-                    null
-                ).singleNodeValue;
-                if (element) {
-                    resolve(element);
-                } else {
-                    attempts++;
-                    if (attempts < maxAttempts) {
-                        setTimeout(checkElement, interval);
-                    } else {
-                        reject(new Error(`Element not found after ${maxAttempts} attempts: ${xpath}`));
-                    }
+    findElementByXPath(xpath) {
+        return new Promise((resolve) => {
+            const existing = GetByXPath(xpath);
+            if (existing) return resolve(existing);
+
+            const observer = new MutationObserver(() => {
+                const found = GetByXPath(xpath);
+                if (found) {
+                    observer.disconnect();
+                    resolve(found);
                 }
-            };
-            checkElement();
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         });
     }
-    findElementBySelector(selector, maxAttempts = 50, interval = 100) {
-        return new Promise((resolve, reject) => {
-            let attempts = 0;
-            const checkElement = () => {
-                const element = document.querySelector(selector);
-                if (element) {
-                    resolve(element);
-                } else {
-                    attempts++;
-                    if (attempts < maxAttempts) {
-                        setTimeout(checkElement, interval);
-                    } else {
-                        reject(new Error(`Element not found after ${maxAttempts} attempts: ${selector}`));
-                    }
+    findElementBySelector(selector) {
+        return new Promise((resolve) => {
+            const existing = document.querySelector(selector);
+            if (existing) return resolve(existing);
+
+            const observer = new MutationObserver(() => {
+                const found = document.querySelector(selector);
+                if (found) {
+                    observer.disconnect();
+                    resolve(found);
                 }
-            };
-            checkElement();
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         });
     }
     async injectHTML(htmlContent, targetXPath, options = {}) {
@@ -145,12 +165,12 @@ class DOMInjector {
             tempContainer.innerHTML = htmlContent.trim();
             const elementsToInject = Array.from(tempContainer.children);
             if (elementsToInject.length === 0) {
-                throw new Error('No valid HTML elements found in provided content');
+                throw new Error("The provided HTML contains no valid tags.");
             }
             if (preventDuplicates && duplicateIdentifier) {
                 const existingElement = targetElement.querySelector(duplicateIdentifier);
                 if (existingElement) {
-                    console.log('Duplicate element found, skipping injection:', duplicateIdentifier);
+                    console.log("Located a duplicate identifier, injection will be skipped. Found identifier: ", duplicateIdentifier);
                     return { success: true, message: 'Duplicate prevented' };
                 }
             }
@@ -172,9 +192,9 @@ class DOMInjector {
                         targetElement.appendChild(element);
                 }
             });
-            return { success: true, message: 'Injection completed', elements: elementsToInject };
+            return { success: true, message: "Successfully injected elements.", elements: elementsToInject };
         } catch (error) {
-            console.error('Failed to inject HTML:', error.message);
+            console.error("Failed to inject HTML. Error message: ", error.message);
             return { success: false, message: error.message };
         }
     }
@@ -185,7 +205,7 @@ class DOMInjector {
             const xpath = this.getXPathFromElement(targetElement);
             return await this.injectHTML(htmlContent, xpath, options);
         } catch (error) {
-            console.error('Failed to inject HTML by selector:', error.message);
+            console.error("Failed to inject HTML by selector. Error message: ", error.message);
             return { success: false, message: error.message };
         }
     }
@@ -221,32 +241,6 @@ class DOMInjector {
 
 const DOMInjectorObject = new DOMInjector();
 
-function GetByXPath(path) {
-    return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-}
-
-function WaitForElement(XPath) {
-    return new Promise((resolve) => {
-        // Check if element already exists
-        const element = GetByXPath(XPath);
-        if (element) {
-            resolve(element);
-            return;
-        }
-
-        const observer = new MutationObserver(() => {
-            const element = GetByXPath(XPath);
-            if (element) {
-                observer.disconnect();
-                resolve(element);
-            }
-        });
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-    });
-}
 function WaitForElementCSS(selector, timeout = 10000) {
     return new Promise((resolve, reject) => {
         const element = document.querySelector(selector);
@@ -267,7 +261,7 @@ function WaitForElementCSS(selector, timeout = 10000) {
         });
         setTimeout(() => {
             observer.disconnect();
-            reject(new Error('Element not found within timeout'));
+            reject(new Error('Element not found within timeout window.'));
         }, timeout);
     });
 }
@@ -321,29 +315,6 @@ function MakeLiveSidebarButton() {
     }
 }
 
-function AddBRpBadge() {
-    const badge = document.createElement('div');
-    badge.id = 'bits-c14';
-    badge.textContent = 'BetterRugplay '+GM_info.script.version;
-    badge.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: grey;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        z-index: 9999;
-        font-size: 12px;
-        font-family: Arial, sans-serif;
-    `;
-
-    document.body.appendChild(badge);
-    Log("Floating badge added!");
-}
-
-AddBRpBadge();
-
 // Modify sidebar buttons.
 MakeTransactionsSidebarButton();
 MakeLiveSidebarButton();
@@ -353,6 +324,15 @@ RemoveElement(`/html/body/div/div[1]/div/div[2]/div/div[2]/div[1]/div/ul/li[9]`)
 RemoveElement(`/html/body/div[4]/div[2]/div[2]/div[1]/div/ul/li[9]`);
 
 // Modify sidebar text.
+WaitForElement("/html/body/div[1]/div[1]/div/div[2]/div/div[1]/div/div/span").then(element => {
+    element.innerText = "BetterRugplay"
+});
+WaitForElement('/html/body/div[1]/div[1]/div/div[2]/div/div[1]/div/div').then(element => {
+    const versionSpan = document.createElement('span');
+    versionSpan.className = 'text-base font-semibold';
+    versionSpan.textContent = GM_info.script.version;
+    element.appendChild(versionSpan);
+});
 WaitForElement("/html/body/div/div[1]/div/div[2]/div/div[2]/div[4]/div[1]").then(element => {
     element.innerText = "Your Portfolio"
 });
