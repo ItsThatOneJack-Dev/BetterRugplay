@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      1.5.0
+// @version      1.5.1
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -15,49 +15,6 @@
 // ==/UserScript==
 
 let Log = GM_log;
-
-(function () {
-    'use strict';
-
-    let lastUrl = location.href;
-
-    const observer = new MutationObserver(() => {
-        if (location.href !== lastUrl) {
-            if (!(location.pathname === "/")) {
-                lastUrl = location.href;
-                console.log('🔁 Href changed, reloading...');
-                location.reload();
-            }
-        }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
-
-    history.pushState = function (...args) {
-        originalPushState.apply(this, args);
-        window.dispatchEvent(new Event('locationchange'));
-    };
-
-    history.replaceState = function (...args) {
-        originalReplaceState.apply(this, args);
-        window.dispatchEvent(new Event('locationchange'));
-    };
-
-    window.addEventListener('popstate', () => {
-        window.dispatchEvent(new Event('locationchange'));
-    });
-
-    window.addEventListener('locationchange', () => {
-        if (location.href !== lastUrl) {
-            lastUrl = location.href;
-            console.log('🔁 locationchange event, reloading...');
-            location.reload();
-        }
-    });
-})();
 
 function GetByXPath(path) {
     return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
