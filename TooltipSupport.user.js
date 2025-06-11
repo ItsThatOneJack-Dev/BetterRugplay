@@ -5,7 +5,7 @@
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
-// @match        *://rugplay.com/*
+// @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=rugplay.com
 // @grant        none
 // @supportURL   https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues
