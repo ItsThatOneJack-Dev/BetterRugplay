@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         URLChangeDetector
 // @namespace    https://itoj.dev
-// @version      1.1.0
+// @version      1.2
 // @description  Library for detecting URL changes in SPAs.
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -16,19 +16,21 @@
 
 (function(global) {
     'use strict';
-    // Prevent multiple initialization
+    
     if (global.URLChangeDetector) {
         return;
     }
+    
     class URLChangeDetector {
         constructor(options = {}) {
             this.callbacks = [];
             this.currentLocation = this._createLocationObject();
             this.isActive = false;
             this.debugMode = options.debug || false;
-            this.pollInterval = options.pollInterval || null; // Optional polling fallback
+            this.pollInterval = options.pollInterval || 500; // Default 500ms
             this.pollTimer = null;
         }
+        
         _createLocationObject() {
             return {
                 href: location.href,
@@ -42,15 +44,18 @@
                 origin: location.origin
             };
         }
+        
         enableDebug() {
             this.debugMode = true;
             return this;
         }
+        
         _log(message) {
             if (this.debugMode) {
                 console.log(`[URLChangeDetector] ${message}`);
             }
         }
+        
         onChange(callback) {
             if (typeof callback === 'function') {
                 this.callbacks.push(callback);
@@ -60,6 +65,7 @@
             }
             return this;
         }
+        
         removeCallback(callback) {
             const index = this.callbacks.indexOf(callback);
             if (index > -1) {
@@ -68,11 +74,13 @@
             }
             return this;
         }
+        
         clearCallbacks() {
             this.callbacks = [];
             this._log('Cleared all callbacks');
             return this;
         }
+        
         _executeCallbacks(newLocation, oldLocation) {
             this._log(`URL changed from ${oldLocation.href} to ${newLocation.href}`);
             this.callbacks.forEach((callback, index) => {
@@ -83,86 +91,93 @@
                 }
             });
         }
+        
         _checkLocationChange() {
             const newLocation = this._createLocationObject();
+            
             if (this.currentLocation.href !== newLocation.href) {
                 const oldLocation = { ...this.currentLocation };
                 this.currentLocation = newLocation;
                 this._executeCallbacks(newLocation, oldLocation);
             }
         }
+        
         start() {
             if (this.isActive) {
                 this._log('Already active');
                 return this;
             }
-            this._log('Starting URL change detection');
-            const originalPushState = history.pushState;
-            const originalReplaceState = history.replaceState;
-            const originalAssign = location.assign;
-            const originalReplace = location.replace;
+            
+            this._log(`Starting URL change detection with ${this.pollInterval}ms polling`);
+            
             const self = this;
-            history.pushState = function() {
-                originalPushState.apply(history, arguments);
-                setTimeout(() => self._checkLocationChange(), 0);
-            };
-            history.replaceState = function() {
-                originalReplaceState.apply(history, arguments);
-                setTimeout(() => self._checkLocationChange(), 0);
-            };
-            location.assign = function() {
-                originalAssign.apply(location, arguments);
-                setTimeout(() => self._checkLocationChange(), 0);
-            };
-            location.replace = function() {
-                originalReplace.apply(location, arguments);
-                setTimeout(() => self._checkLocationChange(), 0);
-            };
+            
+            // Start polling
+            this.pollTimer = setInterval(() => {
+                self._checkLocationChange();
+            }, this.pollInterval);
+            
+            // Also listen for browser events (these always work)
             window.addEventListener('popstate', () => {
                 setTimeout(() => self._checkLocationChange(), 0);
             });
+            
             window.addEventListener('hashchange', () => {
                 setTimeout(() => self._checkLocationChange(), 0);
             });
-            if (this.pollInterval) {
-                this.pollTimer = setInterval(() => {
-                    self._checkLocationChange();
-                }, this.pollInterval);
-                this._log(`Started polling every ${this.pollInterval}ms`);
-            }
+            
             this.isActive = true;
             this._log('URL change detection started');
             return this;
         }
+        
         stop() {
             if (!this.isActive) {
                 this._log('Already inactive');
                 return this;
             }
+            
             if (this.pollTimer) {
                 clearInterval(this.pollTimer);
                 this.pollTimer = null;
                 this._log('Stopped polling');
             }
+            
             this.isActive = false;
-            this._log('URL change detection stopped (note: history hooks remain active)');
+            this._log('URL change detection stopped');
             return this;
         }
+        
         getCurrentLocation() {
             return { ...this.currentLocation };
         }
+        
         isOnPath(path) {
             return this.currentLocation.pathname === path;
         }
+        
         pathMatches(pattern) {
             if (pattern instanceof RegExp) {
                 return pattern.test(this.currentLocation.pathname);
             }
             return this.currentLocation.pathname.includes(pattern);
         }
+        
         getSearchParams() {
             return Object.fromEntries(new URLSearchParams(this.currentLocation.search));
         }
+        
+        // Set new poll interval
+        setPollInterval(ms) {
+            this.pollInterval = ms;
+            if (this.isActive) {
+                this.stop();
+                this.start();
+            }
+            return this;
+        }
     }
+    
     global.URLChangeDetector = URLChangeDetector;
+    
 })(typeof window !== 'undefined' ? window : this);
