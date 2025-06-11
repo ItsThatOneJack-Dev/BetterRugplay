@@ -6,7 +6,7 @@
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
 // @match        *://*/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=rugplay.com
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=itoj.dev
 // @grant        none
 // @supportURL   https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues
 // @updateURL    https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/TooltipSupport.user.js
