@@ -9,8 +9,8 @@ Installation of BetterRugplay is quite easy!
 4. Reload any open Rugplay pages, and you should notice a grey box appearing in the top right of the site.
 If you experience any issues such as console errors, please [submit an issue](<https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues/new>).
 
-If you are a developer, please feel free to `@require` `TooltipSupport.user.js` to add support for custom tooltips using HTML data attributes.
-In the event you do `@require` `TooltipSupport.user.js`, ensure you are complying with the terms of the license (GNU GPL 3.0+).
+If you are a developer, please feel free to `@require` any file for your own work.
+In the event you do `@require` a file, ensure you are complying with the terms of the license (GNU GPL 3.0+).
 That is:
 - If you publicise a modifed version of this program, or any of its contents, you MUST release it under the terms of the GNU GPL 3.0+.
 - If you publicise a modifed version of this program, or any of its contents, you MUST include a list of your changes.
