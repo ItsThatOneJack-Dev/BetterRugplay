@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      2.0.0
+// @version      2.1.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -12,7 +12,21 @@
 // @updateURL    https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
 // @downloadURL  https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
 // @require      https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/TooltipSupport.user.js
+// @require      https://cdn.jsdelivr.net/npm/json5@2/dist/index.min.js
 // ==/UserScript==
+
+// NOTE: It is not required to run anything from TooltipSupport, as required modules run as an extension to the main code.
+//       Because of this, it will behave like two userscripts are running, unless a blocking action is performed.
+//       So, it being required simply combines the functions of this userscript and it.
+
+// COPYRIGHT: Copyright (C) 2025 ItsThatOneJack
+//            This work is licensed to you under the terms of the GNU General Public License, version 3.0 or any later version.
+//            ... at your decision.
+//
+//            Failiure to comply with the terms of the GNU GPL license upon this work will result in a Cease & Desist.
+
+// ESLint explicit variable definitions.
+/* global JSON5 */
 
 let Log = GM_log;
 
@@ -21,13 +35,11 @@ function GetByXPath(path) {
 }
 function WaitForElement(XPath) {
     return new Promise((resolve) => {
-        // Check if element already exists
         const element = GetByXPath(XPath);
         if (element) {
             resolve(element);
             return;
         }
-
         const observer = new MutationObserver(() => {
             const element = GetByXPath(XPath);
             if (element) {
@@ -111,7 +123,7 @@ class DOMInjector {
     }
     async injectHTML(htmlContent, targetXPath, options = {}) {
         const {
-            position = 'append', // 'append', 'prepend', 'before', 'after'
+            position = 'append', // "append", "prepend", "before", or "after"
             preventDuplicates = true,
             duplicateIdentifier = null
         } = options;
@@ -305,13 +317,13 @@ WaitForElement("/html/body/div/div[1]/div/div[2]/div/div[2]/div[4]/div[2]/div/di
 
 
 // Tag handling.
-// Tag handling.
 function GetBRPTags(Path) {
     const pathMatch = Path.match(/^\/user\/(.+)$/);
     if (!pathMatch) return Promise.resolve([]);
     const currentId = pathMatch[1];
-    return fetch('https://raw.githubusercontent.com/ItsThatOneJack-Dev/BetterRugplay-tags/main/tags.json')
-        .then(response => response.json())
+    return fetch('https://raw.githubusercontent.com/ItsThatOneJack-Dev/BetterRugplay-tags/main/tags.json5')
+        .then(response => response.text())
+        .then(text => JSON5.parse(text))
         .then(tags => {
             const matchingTags = [];
             for (const [message, userList] of Object.entries(tags)) {
@@ -336,30 +348,22 @@ function TagProfile(Tags) {
 
 function setupCommentWatcher() {
     Log("Setting up comment watcher...");
-
-    // First, try to tag any existing comments
     const existingContainer = document.querySelector('div.space-y-4');
     if (existingContainer) {
         TagComments(existingContainer);
     }
-
-    // Then watch for new comments being added
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             mutation.addedNodes.forEach((node) => {
-                // Check if the added node is a comment div
                 if (node.nodeType === Node.ELEMENT_NODE) {
-                    // Check if it's a comment container
                     if (node.classList && node.classList.contains('space-y-4')) {
                         Log("Comment container added, tagging all comments");
                         TagComments(node);
                     }
-                    // Check if it's an individual comment
                     else if (node.classList && node.classList.contains('border-border')) {
                         Log("Individual comment added, tagging it");
                         TagSingleComment(node);
                     }
-                    // Check if it contains comments (in case a parent div was added)
                     else if (node.querySelector) {
                         const commentDivs = node.querySelectorAll('div.border-border');
                         if (commentDivs.length > 0) {
@@ -371,8 +375,6 @@ function setupCommentWatcher() {
             });
         });
     });
-
-    // Start observing the entire document for changes
     observer.observe(document.body, {
         childList: true,
         subtree: true
