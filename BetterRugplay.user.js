@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      3.1.0
+// @version      3.2.0
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
@@ -11,6 +11,7 @@
 // @supportURL   https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues
 // @updateURL    https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
 // @downloadURL  https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
+// @require      https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/UpdateChecker.user.js
 // @require      https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/TooltipSupport.user.js
 // @require      https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/URLChangeDetector.user.js
 // @require      https://cdn.jsdelivr.net/npm/json5@2/dist/index.min.js
@@ -29,6 +30,7 @@
 // ESLint explicit variable definitions.
 /* global JSON5 */
 /* global URLChangeDetector */
+/* global UpdateChecker */
 
 let Log = GM_log;
 
@@ -36,10 +38,10 @@ if (typeof URLChangeDetector === 'undefined') {
     throw new Error("URLObserver class is undefined. Is it correctly imported and up to date?");
     return;
 }
-
-let URLObserver = new URLChangeDetector({
-    pollInterval: 250
-});
+if (typeof UpdateChecker === 'undefined') {
+    throw new Error("UpdateChecker class is undefined. Is it correctly imported and up to date?");
+    return;
+}
 
 function GetByXPath(path) {
     return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -433,7 +435,7 @@ function InsertBLCAbout() {
     });
 }
 
-function Toast(message, duration = 3000) {
+function Toast(message, duration = 3000, link = null) {
     let toastContainer = document.getElementById('tampermonkey-toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
@@ -464,7 +466,13 @@ function Toast(message, duration = 3000) {
         word-wrap: break-word;
         font-size: 14px;
         line-height: 1.4;
+        ${link ? 'cursor: pointer; pointer-events: auto;' : ''}
     `;
+    if (link) {
+        toast.addEventListener('click', () => {
+            window.open(link, '_blank');
+        });
+    }
     toastContainer.appendChild(toast);
     setTimeout(() => {
         toast.style.transform = 'translateX(0)';
@@ -480,6 +488,13 @@ function Toast(message, duration = 3000) {
         }, 300);
     }, duration);
 }
+
+const URLObserver = new URLChangeDetector({
+    pollInterval: 250
+});
+const UpdateDetector = new UpdateChecker(GM_info.script.version,GM_info.script.updateURL,(currentVersion,newVersion) => {
+    Toast(`Version ${newVersion} is now available! Click here to update!`,30000,GM_info.script.updateURL);
+},30000);
 
 URLObserver.onChange((newLocation, oldLocation) => {
     if (newLocation.pathname.match(/^\/user\/(.+)$/)) {
