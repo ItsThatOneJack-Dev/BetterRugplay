@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         BetterRugplay
 // @namespace    https://itoj.dev
-// @version      3.2.0
+// @version      3.2.1
 // @description  Take over the virtual crypto exchange!
 // @copyright    Copyright (C) 2025 ItsThatOneJack
 // @author       ItsThatOneJack
-// @match        *://rugplay.com/*
-// @icon         https://www.google.com/s2/favicons?sz=64&domain=rugplay.com
+// @match        *://*.rugplay.com/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=itoj.dev
 // @grant        GM_log
 // @supportURL   https://github.com/ItsThatOneJack-Dev/BetterRugplay/issues
 // @updateURL    https://github.com/ItsThatOneJack-Dev/BetterRugplay/raw/refs/heads/main/BetterRugplay.user.js
@@ -497,7 +497,7 @@ const UpdateDetector = new UpdateChecker(GM_info.script.version,GM_info.script.u
 },30000);
 
 URLObserver.onChange((newLocation, oldLocation) => {
-    if (newLocation.pathname.match(/^\/user\/(.+)$/)) {
+    if (newLocation.pathname.includes("/user/")) {
         GetBRPTags(newLocation.pathname).then(tags => {
             TagProfile(tags);
         });
