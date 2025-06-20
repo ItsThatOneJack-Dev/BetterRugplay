@@ -1,4 +1,10 @@
 # BetterRugplay
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://itoj.dev/embed/Wwatermark.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://itoj.dev/embed/Bwatermark.png">
+  <img alt="ItsThatOneJack, Copyright, All Rights Reserved Unless Stated Otherwise. Follow the license!" src="https://itoj.dev/embed/Bwatermark.png">
+</picture>
+</br></br>
 A userscript for Rugplay designed to enhance the user experience!
 
 ## Installation
